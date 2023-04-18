@@ -21,7 +21,6 @@ def search_people(vk, age, gender, city, status, count):
         if not DataBase.user_exists(user_id):
             top_photos = get_top_photos(vk, user_id)
             DataBase.insert_user(user_id, age, city, gender, status)
-
             result.append(
                 {
                     "id": user_id,
@@ -33,7 +32,7 @@ def search_people(vk, age, gender, city, status, count):
 
 
 def get_top_photos(vk, user_id):
-    photos = vk.photos.getAll(owner_id=user_id, count=200, no_service_albums=0, extended=1)
+    photos = vk.photos.getAll(owner_id=user_id, count=200, no_service_albums=1, extended=1)
 
     def weight(photo):
         if 'comments' not in photo:
@@ -43,4 +42,4 @@ def get_top_photos(vk, user_id):
         return photo["likes"]["count"] + photo["comments"]["count"]
 
     sorted_photos = sorted(photos["items"], key=weight, reverse=True)
-    return [photo["sizes"][-1]["url"] for photo in sorted_photos[:3]]
+    return ['photo{}_{}'.format(photo['owner_id'], photo['id']) for photo in sorted_photos[:3]]
