@@ -1,26 +1,34 @@
 from utils import DataBase
 
 
-def search_people(vk, age, gender, city, status, count):
+def search_people(vk, user_searching_id, age, gender, city, status):
     search_results = vk.users.search(
         age_from=age,
         age_to=age,
         city=city,
         sex=gender,
         status=status,
-        count=count,
+        count=100,
+        has_photo=1,
     )["items"]
 
     result = []
+    print(search_results)
 
     for user in search_results:
         if user["is_closed"]:
             continue
 
+        print(user)
+
         user_id = user["id"]
-        if not DataBase.user_exists(user_id):
+
+        if vk.photos.getAll(owner_id=user_id, count=1, no_service_albums=1, extended=1)["count"] == 0:
+            continue
+
+        if not DataBase.user_in_match(user_searching_id, user_id):
             top_photos = get_top_photos(vk, user_id)
-            DataBase.insert_user(user_id, age, city, gender, status)
+            DataBase.add_user(user_id, age, city, gender, status)
             result.append(
                 {
                     "id": user_id,
