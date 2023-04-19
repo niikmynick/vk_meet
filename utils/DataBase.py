@@ -31,6 +31,15 @@ def create_database():
     db.close()
 
 
+def user_exists(user_id):
+    db = sqlite3.connect("users_data.db")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT user_id FROM users WHERE user_id = {user_id}")
+    result = cursor.fetchall()
+    db.close()
+    return bool(result)
+
+
 def add_user(user_id, age, city, gender, status):
     db = sqlite3.connect("users_data.db")
     db.execute(f"INSERT OR IGNORE INTO users VALUES ({user_id}, {age}, {city}, {gender}, {status})")
@@ -68,6 +77,29 @@ def add_match(user_searching_id, user_id):
     db.execute(f"INSERT OR IGNORE INTO users_match VALUES ({user_searching_id}, {user_id})")
     db.commit()
     db.close()
+
+
+def add_need(user_id):
+    db = sqlite3.connect("users_data.db")
+    db.execute(f"INSERT OR IGNORE INTO users_needs VALUES ({user_id}, 0, 0, 0, 0)")
+    db.commit()
+    db.close()
+
+
+def update_need(user_id, scope, value):
+    db = sqlite3.connect("users_data.db")
+    db.execute(f"UPDATE users_needs SET {scope} = {value} WHERE user_id = {user_id}")
+    db.commit()
+    db.close()
+
+
+def get_need(user_id, scope):
+    db = sqlite3.connect("users_data.db")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT {scope} FROM users_needs WHERE user_id = {user_id}")
+    result = cursor.fetchall()
+    db.close()
+    return result[0][0]
 
 
 def user_in_match(user_searching_id, user_id):
