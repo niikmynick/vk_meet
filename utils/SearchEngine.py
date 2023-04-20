@@ -13,7 +13,6 @@ def search_people(vk, user_searching_id, age, gender, city, status):
     )["items"]
 
     result = []
-    print(search_results)
 
     for user in search_results:
         if user["is_closed"]:
@@ -26,9 +25,15 @@ def search_people(vk, user_searching_id, age, gender, city, status):
         if vk.photos.getAll(owner_id=user_id, count=1, no_service_albums=1, extended=1)["count"] == 0:
             continue
 
-        if not DataBase.user_in_match(user_searching_id, user_id):
+        if not DataBase.user_in_match(user_searching_id, user_id) and len(result) <= 3:
             top_photos = get_top_photos(vk, user_id)
+
+            if not top_photos:
+                continue
+
             DataBase.add_user(user_id, age, city, gender, status)
+            DataBase.add_match(user_searching_id, user_id)
+
             result.append(
                 {
                     "id": user_id,
@@ -36,6 +41,7 @@ def search_people(vk, user_searching_id, age, gender, city, status):
                     "top_photos": top_photos,
                 }
             )
+
     return result
 
 
