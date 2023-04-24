@@ -15,7 +15,9 @@ def create_database():
 
     db.execute("""CREATE TABLE IF NOT EXISTS users_match (
                         user_searching_id INTEGER,
-                        user_id INTEGER);
+                        user_id INTEGER, 
+                        top_photos TEXT, 
+                        is_seen BOOLEAN DEFAULT FALSE);
                 """)
     db.commit()
 
@@ -61,10 +63,39 @@ def get_scope(user_id, scope):
 def get_matches(user_id):
     db = sqlite3.connect("users_data.db")
     cursor = db.cursor()
-    cursor.execute(f"SELECT user_id FROM users_match WHERE user_searching_id = {user_id};")
+    cursor.execute(f"SELECT user_id, top_photos FROM users_match WHERE user_searching_id = {user_id};")
     result = cursor.fetchall()
     db.close()
     return result
+
+
+def get_seen_matches(user_id):
+    db = sqlite3.connect("users_data.db")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT user_id, top_photos FROM users_match WHERE user_searching_id = {user_id} and is_seen = TRUE;")
+    result = cursor.fetchall()
+    db.close()
+    return result
+
+
+def get_match(user_id):
+    db = sqlite3.connect("users_data.db")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT user_id, top_photos FROM users_match WHERE user_searching_id = {user_id} and is_seen = FALSE;")
+    result = cursor.fetchone()
+    cursor.execute(f"UPDATE users_match SET is_seen = TRUE WHERE user_searching_id = {user_id} and user_id = {result[0]};")
+    db.commit()
+    db.close()
+    return result
+
+
+def matches_exist(user_id):
+    db = sqlite3.connect("users_data.db")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT * FROM users_match WHERE user_searching_id = {user_id} and is_seen = FALSE;")
+    result = cursor.fetchall()
+    db.close()
+    return len(result) != 0
 
 
 def update_user(user_id, scope, value):
@@ -74,9 +105,9 @@ def update_user(user_id, scope, value):
     db.close()
 
 
-def add_match(user_searching_id, user_id):
+def add_match(user_searching_id, user_id, top_photos):
     db = sqlite3.connect("users_data.db")
-    db.execute(f"INSERT OR IGNORE INTO users_match VALUES ({user_searching_id}, {user_id});")
+    db.execute("INSERT OR IGNORE INTO users_match VALUES (?, ?, ?, FALSE);", (user_searching_id, user_id, f"{top_photos}"))
     db.commit()
     db.close()
 

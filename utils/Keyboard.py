@@ -41,3 +41,27 @@ def change_keyboard():
     keyboard.add_line()
     keyboard.add_button("Вернуться в главное меню", color=VkKeyboardColor.PRIMARY)
     return keyboard.get_keyboard()
+
+
+def next_keyboard():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button("Далее", color=VkKeyboardColor.PRIMARY)
+    keyboard.add_line()
+    keyboard.add_button("Вернуться в главное меню", color=VkKeyboardColor.PRIMARY)
+    return keyboard.get_keyboard()
+
+
+def fill_in_keyboard(scopes):
+    keyboard = VkKeyboard(one_time=True)
+    for scope in scopes:
+        if scope == "возраст":
+            keyboard.add_button("Указать возраст", color=VkKeyboardColor.PRIMARY)
+        elif scope == "город":
+            keyboard.add_button("Указать город", color=VkKeyboardColor.PRIMARY)
+        elif scope == "пол":
+            keyboard.add_button("Указать пол", color=VkKeyboardColor.PRIMARY)
+        elif scope == "статус":
+            keyboard.add_button("Указать статус", color=VkKeyboardColor.PRIMARY)
+
+    keyboard.add_button("Вернуться в главное меню", color=VkKeyboardColor.PRIMARY)
+    return keyboard.get_keyboard()
